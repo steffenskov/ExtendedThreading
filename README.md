@@ -1,13 +1,6 @@
 # ExtendedThreading
 
-A super small library for providing strong typed Ids (as opposed to using primitives).
-
-The benefit of this is simple: You don't run the risk of accidentally using the wrong type of id. (e.g. sending a UserId into a query for products)
-
-This works through the use of an abstract base class (`ExtendedThreading<TExtendedThreading, TPrimitiveId>`) which is inherited to gain the id functionality.
-
-This project is inspired by [Andrew Lock's StronglyTypedId](https://github.com/andrewlock/StronglyTypedId).
-However I needed support for .Net 5 and thus this project was born. It has since evolved to .Net 7.
+This package provides extended Threading functionality, built on top of the built-in Threading capabilities of .Net.
 
 # Installation
 
@@ -15,53 +8,53 @@ I recommend using the NuGet package: [ExtendedThreading](https://www.nuget.org/p
 
 # Usage
 
-Specify your class like this:
+## ThreadSignal
+
+This is used to simplify signalling between threads, e.g. when building the Producer/Consumer pattern:
 
 ```
-[TypeConverter(typeof(StrongTypedValueTypeConverter<UserId, Guid>))]
-[ExtendedThreadingJsonConverter<UserId, Guid>]
-public class UserId: ExtendedThreading<UserId, Guid>
+public class ProducerConsumer<T>
 {
-	public UserId(Guid primitiveId) : base(primitiveId)
+	private ThreadSignal _signal = new();
+	
+	public void Produce(T item){
+		// produce
+		_signal.Pulse(); // Inform consumers that a new item is available
+	}
+
+	public void Consume()
 	{
+		_signal.Wait(); // Will block until an item becomes available
+		// consume
 	}
 }
 ```
 
-This specifies that the class `UserId` is in fact a `Guid` and can be used in place of a `Guid`.
-And that's basically all there is to it, now you just use `UserId` in place of `Guid` where you're dealing with an User's Id.
+## KeyedMutexSynchronizer
 
-You can omit the `JsonConverter` if you don't use json serialization as well as the `TypeConverter` if you're not using WebAPI or MVC.
+This is used to ensure mutual exclusion based on keys. E.g. for an API where you want to grant only a single thread access to do PUT requests on a per-id basis to prevent race conditions on a per entity basis:
 
-Furthermore there are a couple of base classes available to you:
-- `StrongTypedValue` for anything that's not an id, this supports `string` as a primitive value.
-- `ExtendedThreading` for anything that IS an id, this only supports `struct` types as primitives (therefore no `strings`). 
-  - Adds the static `Parse(string)` and `TryParse(string, out TExtendedThreading)` methods.
-- `StrongTypedGuid` a further specialization of `ExtendedThreading`.
-  - Adds the static `New()` method for instantiating new ids with random values as well as the static `Empty` property.
+```
+public class OrderController
+{
+	private readonly KeyedMutexSynchronizer<OrderId> _synchronizer;
+	private readonly IOrderService _orderService;
 
-# Compatibility
+	public OrderController(IOrderService orderService, KeyedMutexSynchronizer<OrderId> synchronizer)
+	{
+		_synchronizer = synchronizer;
+		_orderService = orderService;
+	}
 
-## Dapper.DDD.Repository
-
-This can work without any extensions, however it's a bit simpler to use via the package [ExtendedThreading.Dapper.DDD.Repository](https://www.nuget.org/packages/ExtendedThreading.Dapper.DDD.Repository/).
-
-## Entity Framework
-
-This is supported through the package [ExtendedThreading.EntityFrameworkCore](https://www.nuget.org/packages/ExtendedThreading.EntityFrameworkCore).
-
-## WebAPI
-
-This is supported through the use of the built-in `JsonConverter` and `TypeConverter`.
-
-## MVC
-
-This is supported through the use of the built-in `TypeConverter`.
-
-## NewtonSoft.Json
-
-This is supported through the package [ExtendedThreading.NewtonSoft](https://www.nuget.org/packages/ExtendedThreading.NewtonSoft).
-
-## Swagger
-
-This is supported through the package [ExtendedThreading.Swagger](https://www.nuget.org/packages/ExtendedThreading.Swagger).
+	[HttpPut("{id})]
+	public async Task PutAsync(OrderId id, OrderModel model, CancellationToken cancellationToken)
+	{
+		// The code in the lambda expression will be protected by a mutex based on OrderId, no two requests with the same OrderId will execute simultaneously, however two requests with different OrderIds will execute simultaneously like normal
+		await _synchronizer.InvokeSynchronizedActionAsync(id, async () => { 
+			var order = _orderService.GetOrderAsync(id, cancellationToken);
+			order.Update(model)
+			await _orderService.PersistOrderAsync(order, cancellationToken);
+		}, cancellationToken);
+	}
+}
+```

@@ -1,12 +1,7 @@
 ﻿namespace ExtendedThreading;
 public class ThreadSignal
 {
-	private object _lockObject;
-
-	public ThreadSignal()
-	{
-		_lockObject = new object();
-	}
+	private readonly object _lockObject = new();
 
 	public void Pulse()
 	{

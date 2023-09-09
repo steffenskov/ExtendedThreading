@@ -37,7 +37,7 @@ where TKey : notnull
 		}
 	}
 
-	public async Task InvokeSynchronizedActionAsync(TKey key, Func<CancellationToken, Task> action, CancellationToken cancellationToken)
+	public async Task InvokeSynchronizedActionAsync(TKey key, Func<Task> action, CancellationToken cancellationToken)
 	{
 		MutexSlim mutex;
 		lock (_lock)
@@ -49,7 +49,7 @@ where TKey : notnull
 		try
 		{
 			await mutex.WaitAsync(cancellationToken);
-			await action(cancellationToken);
+			await action();
 		}
 		finally
 		{
