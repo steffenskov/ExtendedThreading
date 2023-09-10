@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+		<ImplicitUsings>true</ImplicitUsings>
+        <Version>1.0.0</Version>
+        <Authors>Steffen Skov</Authors>
+        <Company>Steffen Skov</Company>
+        <Description>A super small library for providing strong typed Ids (as opposed to using primitives)</Description>
+        <Copyright>Steffen Skov 2022</Copyright>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/steffenskov/ExtendedThreading</PackageProjectUrl>
+        <PackageTags>Threading</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
+    <ItemGroup>
+        <None Include="../../README.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
+</Project>
