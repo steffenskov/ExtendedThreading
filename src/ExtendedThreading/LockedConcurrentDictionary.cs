@@ -31,6 +31,11 @@ where TKey : notnull
 		set => _dictionary[key] = value;
 	}
 
+	public bool TryGetValue(TKey key, out TValue? value)
+	{
+		return _dictionary.TryGetValue(key, out value);
+	}
+
 	public bool TryRemove(TKey key, out TValue? value)
 	{
 		return _dictionary.TryRemove(key, out value);
