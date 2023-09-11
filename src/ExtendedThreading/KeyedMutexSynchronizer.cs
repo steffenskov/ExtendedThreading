@@ -58,6 +58,22 @@ where TKey : notnull
 		}
 	}
 
+
+	public T InvokeSynchronizedFunc<T>(TKey key, Func<T> func)
+	{
+		var mutexInfo = AcquireMutex(key);
+
+		try
+		{
+			mutexInfo.Wait();
+			return func();
+		}
+		finally
+		{
+			ReleaseMutex(key, mutexInfo);
+		}
+	}
+
 	public async Task InvokeSynchronizedActionAsync(TKey key, Func<Task> action, CancellationToken cancellationToken)
 	{
 		var mutexInfo = AcquireMutex(key);
@@ -66,6 +82,21 @@ where TKey : notnull
 		{
 			await mutexInfo.WaitAsync(cancellationToken);
 			await action();
+		}
+		finally
+		{
+			ReleaseMutex(key, mutexInfo);
+		}
+	}
+
+	public async Task<T> InvokeSynchronizedFuncAsync<T>(TKey key, Func<Task<T>> func, CancellationToken cancellationToken)
+	{
+		var mutexInfo = AcquireMutex(key);
+
+		try
+		{
+			await mutexInfo.WaitAsync(cancellationToken);
+			return await func();
 		}
 		finally
 		{
