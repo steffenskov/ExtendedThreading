@@ -4,7 +4,8 @@ This package provides extended Threading functionality, built on top of the buil
 
 # Installation
 
-I recommend using the NuGet package: [ExtendedThreading](https://www.nuget.org/packages/ExtendedThreading) however feel free to clone the source instead if that suits your needs better.
+I recommend using the NuGet package: [ExtendedThreading](https://www.nuget.org/packages/ExtendedThreading) however feel free to clone the source instead if that suits your needs
+better.
 
 # Usage
 
@@ -32,7 +33,8 @@ public class ProducerConsumer<T>
 
 ## KeyedMutexSynchronizer
 
-This is used to ensure mutual exclusion based on keys. E.g. for an API where you want to grant only a single thread access to do PUT requests on a per-id basis to prevent race conditions on a per entity basis:
+This is used to ensure mutual exclusion based on keys. E.g. for an API where you want to grant only a single thread access to do PUT requests on a per-id basis to prevent race
+conditions on a per entity basis:
 
 ```
 public class OrderController
@@ -57,4 +59,26 @@ public class OrderController
 		}, cancellationToken);
 	}
 }
+```
+
+## TaskExtension
+
+This class only offers one method: `WhenAll`. It functions similarly to the built-in `Task.WhenAll` in .Net, except for how it handles Exceptions.
+
+This version throws an `AggregateException` in case any exceptions occur, to allow you the full picture of all exceptions, instead of just the first one (which is what the
+built-in `Task.WhenAll` will throw)
+
+## AwaitExtensions
+
+This isn't actually called directly, rather it supports awaiting tuples, even of mixed types, e.g.
+
+```
+public Task<string> HelloWorldAsync(); // Returns "Hello world"
+public Task<int> MeaningOfLifeAsync(); // Returns 42
+
+var task1 = HelloWorldAsync();
+var task2 = MeaningOfLifeAsync();
+
+var results = await (task1, task2);
+// results will be "Hello world" and 42 respectively
 ```
