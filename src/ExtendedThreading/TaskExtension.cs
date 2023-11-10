@@ -6,6 +6,11 @@ public class TaskExtension
 {
 	public static async Task<IEnumerable<T>> WhenAll<T>(params Task<T>[] tasks)
 	{
+		return await WhenAll<T>((IEnumerable<Task<T>>)tasks);
+	}
+	
+	public static async Task<IEnumerable<T>> WhenAll<T>(IEnumerable<Task<T>> tasks)
+	{
 		var allTasks = Task.WhenAll(tasks);
 		try
 		{
@@ -20,6 +25,11 @@ public class TaskExtension
 	}
 
 	public static async Task WhenAll(params Task[] tasks)
+	{
+		await WhenAll((IEnumerable<Task>)tasks);
+	}
+	
+	public static async Task WhenAll( IEnumerable<Task> tasks)
 	{
 		var allTasks = Task.WhenAll(tasks);
 		try
