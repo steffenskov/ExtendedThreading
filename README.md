@@ -82,3 +82,6 @@ var task2 = MeaningOfLifeAsync();
 var results = await (task1, task2);
 // results will be "Hello world" and 42 respectively
 ```
+
+# Documentation
+Auto generated documentation via [DocFx](https://github.com/dotnet/docfx) is available here: https://steffenskov.github.io/ExtendedThreading/
