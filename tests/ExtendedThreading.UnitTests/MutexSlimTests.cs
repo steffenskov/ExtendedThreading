@@ -9,7 +9,7 @@ public class MutexSlimTests
 		using var mutex = new MutexSlim();
 
 		// Act
-		mutex.Wait();
+		mutex.Wait(TestContext.Current.CancellationToken);
 
 		// Assert
 		Assert.True(true); // Just testing wait didn't block
