@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="CHANGELOG.md" />
+    <File Path="Directory.Build.props" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/ExtendedThreading/ExtendedThreading.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ExtendedThreading.UnitTests/ExtendedThreading.UnitTests.csproj" />
+  </Folder>
+</Solution>
