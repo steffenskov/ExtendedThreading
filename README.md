@@ -4,14 +4,35 @@ This package provides extended Threading functionality, built on top of the buil
 
 # Installation
 
-I recommend using the NuGet package: [ExtendedThreading](https://www.nuget.org/packages/ExtendedThreading) however feel free to clone the source instead if that suits your needs
-better.
+I recommend using the NuGet package: [ExtendedThreading](https://www.nuget.org/packages/ExtendedThreading) however feel free to clone the source instead if that suits your needs better.
 
 # Usage
 
+## AsyncSignal
+
+This is used to simplify signaling between async contexts, e.g. when building the Producer/Consumer pattern purely on async/await.
+
+```
+public class ProducerConsumer<T>
+{
+	private AsyncSignal _signal = new();
+	
+	public void Produce(T item){
+		// produce
+		_signal.Pulse(); // Inform consumers that a new item is available
+	}
+
+	public async Task Consume(CancellationToken cancelationToken)
+	{
+		await _signal.WaitAsync(cancellationToken); // Will block until an item becomes available or the token is cancelled
+		// consume
+	}
+}
+```
+
 ## ThreadSignal
 
-This is used to simplify signalling between threads, e.g. when building the Producer/Consumer pattern:
+This is used to simplify signaling between threads, e.g. when building the Producer/Consumer pattern:
 
 ```
 public class ProducerConsumer<T>
@@ -33,8 +54,7 @@ public class ProducerConsumer<T>
 
 ## KeyedMutexSynchronizer
 
-This is used to ensure mutual exclusion based on keys. E.g. for an API where you want to grant only a single thread access to do PUT requests on a per-id basis to prevent race
-conditions on a per entity basis:
+This is used to ensure mutual exclusion based on keys. E.g. for an API where you want to grant only a single thread access to do PUT requests on a per-id basis to prevent race conditions on a per entity basis:
 
 ```
 public class OrderController
@@ -65,8 +85,7 @@ public class OrderController
 
 This class only offers one method: `WhenAll`. It functions similarly to the built-in `Task.WhenAll` in .Net, except for how it handles Exceptions.
 
-This version throws an `AggregateException` in case any exceptions occur, to allow you the full picture of all exceptions, instead of just the first one (which is what the
-built-in `Task.WhenAll` will throw)
+This version throws an `AggregateException` in case any exceptions occur, to allow you the full picture of all exceptions, instead of just the first one (which is what the built-in `Task.WhenAll` will throw)
 
 ## AwaitExtensions
 
@@ -84,4 +103,5 @@ var results = await (task1, task2);
 ```
 
 # Documentation
+
 Auto generated documentation via [DocFx](https://github.com/dotnet/docfx) is available here: https://steffenskov.github.io/ExtendedThreading/
